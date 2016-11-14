@@ -67,7 +67,7 @@ public class ItemGroblinHand extends BasicItem {
         }
     }
 
-    public boolean tryPlace(@Nullable EntityPlayer worldIn, World world, BlockPos posIn)
+    public boolean tryPlace(@Nullable EntityPlayer playerIn, World world, BlockPos posIn)
     {
         IBlockState iblockstate = world.getBlockState(posIn);
         Material material = iblockstate.getMaterial();
@@ -81,7 +81,8 @@ public class ItemGroblinHand extends BasicItem {
         }
         else if (block == ModBlocks.groblinPlasma)
         {
-            return false;
+            world.setBlockToAir(posIn);
+            return true;
         }
         else
         {

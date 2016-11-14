@@ -20,6 +20,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import ninja.thepurple.groblins.common.rituals.ModRituals;
 import ninja.thepurple.groblins.common.rituals.Ritual;
+import ninja.thepurple.groblins.common.rituals.ValidRitual;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -30,6 +31,7 @@ public class BlockGroblinPlasma extends BasicBlock {
     public static final PropertyEnum<BlockGroblinPlasma.EnumAttachPosition> SOUTH = PropertyEnum.create("south", BlockGroblinPlasma.EnumAttachPosition.class);
     public static final PropertyEnum<BlockGroblinPlasma.EnumAttachPosition> WEST = PropertyEnum.create("west", BlockGroblinPlasma.EnumAttachPosition.class);
     public static final PropertyBool IS_RITUAL = PropertyBool.create("is_ritual");
+    public static final PropertyBool IS_KEY = PropertyBool.create("is_key");
 
     protected static final AxisAlignedBB[] GROBLIN_PLASMA_AABB = new AxisAlignedBB[]{new AxisAlignedBB(0.1875D, 0.0D, 0.1875D, 0.8125D, 0.0625D, 0.8125D), new AxisAlignedBB(0.1875D, 0.0D, 0.1875D, 0.8125D, 0.0625D, 1.0D), new AxisAlignedBB(0.0D, 0.0D, 0.1875D, 0.8125D, 0.0625D, 0.8125D), new AxisAlignedBB(0.0D, 0.0D, 0.1875D, 0.8125D, 0.0625D, 1.0D), new AxisAlignedBB(0.1875D, 0.0D, 0.0D, 0.8125D, 0.0625D, 0.8125D), new AxisAlignedBB(0.1875D, 0.0D, 0.0D, 0.8125D, 0.0625D, 1.0D), new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.8125D, 0.0625D, 0.8125D), new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.8125D, 0.0625D, 1.0D), new AxisAlignedBB(0.1875D, 0.0D, 0.1875D, 1.0D, 0.0625D, 0.8125D), new AxisAlignedBB(0.1875D, 0.0D, 0.1875D, 1.0D, 0.0625D, 1.0D), new AxisAlignedBB(0.0D, 0.0D, 0.1875D, 1.0D, 0.0625D, 0.8125D), new AxisAlignedBB(0.0D, 0.0D, 0.1875D, 1.0D, 0.0625D, 1.0D), new AxisAlignedBB(0.1875D, 0.0D, 0.0D, 1.0D, 0.0625D, 0.8125D), new AxisAlignedBB(0.1875D, 0.0D, 0.0D, 1.0D, 0.0625D, 1.0D), new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.0625D, 0.8125D), new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.0625D, 1.0D)};
 
@@ -42,7 +44,9 @@ public class BlockGroblinPlasma extends BasicBlock {
                 .withProperty(EAST, BlockGroblinPlasma.EnumAttachPosition.NONE)
                 .withProperty(SOUTH, BlockGroblinPlasma.EnumAttachPosition.NONE)
                 .withProperty(WEST, BlockGroblinPlasma.EnumAttachPosition.NONE)
-                .withProperty(IS_RITUAL, false));
+                .withProperty(IS_RITUAL, false)
+                .withProperty(IS_KEY, false)
+        );
     }
 
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
@@ -161,7 +165,7 @@ public class BlockGroblinPlasma extends BasicBlock {
                     worldIn.destroyBlock(p, true);
                 }
             } else {
-                Ritual ritual = ModRituals.matchRitual(foundPositions);
+                ValidRitual ritual = ModRituals.matchRitual(foundPositions);
 
                 boolean isRitual = ritual != null;
 
@@ -245,21 +249,27 @@ public class BlockGroblinPlasma extends BasicBlock {
 
 
         if (!worldIn.isRemote) {
+            ArrayList<BlockPos> checked = new ArrayList<>();
             for(EnumFacing direction : new EnumFacing[]{EnumFacing.WEST, EnumFacing.EAST, EnumFacing.NORTH, EnumFacing.SOUTH}) {
                 BlockPos adjPos = pos.offset(direction);
 
-                Block block = worldIn.getBlockState(adjPos).getBlock();
+                if(!checked.contains(adjPos)) {
 
-                if (block == ModBlocks.groblinPlasma) {
-                    ArrayList<BlockPos> foundPositions = new ArrayList<BlockPos>();
-                    foundPositions.add(adjPos);
-                    this.findConnectedPlasma(worldIn, adjPos, foundPositions, 0);
+                    Block block = worldIn.getBlockState(adjPos).getBlock();
 
-                    Ritual ritual = ModRituals.matchRitual(foundPositions);
-                    if (ritual == null) {
+                    if (block == ModBlocks.groblinPlasma) {
+                        ArrayList<BlockPos> foundPositions = new ArrayList<>();
+                        checked.addAll(foundPositions);
+                        foundPositions.add(adjPos);
+                        this.findConnectedPlasma(worldIn, adjPos, foundPositions, 0);
+
+                        ValidRitual ritual = ModRituals.matchRitual(foundPositions);
+                        boolean isRitual = (ritual != null);
+
                         for (BlockPos p : foundPositions) {
-                            worldIn.setBlockState(p, this.blockState.getBaseState().withProperty(IS_RITUAL, false));
+                            worldIn.setBlockState(p, this.blockState.getBaseState().withProperty(IS_RITUAL, isRitual));
                         }
+
                     }
                 }
             }
@@ -416,7 +426,7 @@ public class BlockGroblinPlasma extends BasicBlock {
     }
 
     protected BlockStateContainer createBlockState() {
-        return new BlockStateContainer(this, new IProperty[]{NORTH, EAST, SOUTH, WEST, IS_RITUAL});
+        return new BlockStateContainer(this, new IProperty[]{NORTH, EAST, SOUTH, WEST, IS_RITUAL, IS_KEY});
     }
 
     static enum EnumAttachPosition implements IStringSerializable {
