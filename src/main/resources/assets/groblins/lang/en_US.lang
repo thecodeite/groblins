@@ -4,3 +4,5 @@ item.groblinDustBlock.name=Groblin Dust Block
 tile.groblinDustBlock.name=Groblin Dust Block
 item.groblinHouse.name=Groblin House
 tile.groblinHouse.name=Groblin House
+
+entity.groblins.Groblin.name="Groblin"

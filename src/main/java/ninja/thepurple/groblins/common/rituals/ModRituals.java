@@ -10,23 +10,24 @@ import java.util.ArrayList;
 public final class ModRituals {
     public static ArrayList<Ritual> allRituals = new ArrayList<>();
 
-    public static Ritual ritualCreateSapling;
-    public static Ritual ritualCreateGrass;
+    public static SummonBlockRitual ritualCreateDirt;
+    public static SummonBlockRitual ritualCreateSapling;
+    public static SummonBlockRitual ritualCreateGrass;
     public static Ritual ritualCreateWaterHole;
     public static Ritual ritualBasicGrowth;
 
     public static void createRituals() {
-        ritualCreateSapling = register(new BasicSummonBlockRitual("#o;X#", Blocks.SAPLING));
-        ritualCreateGrass = register(new BasicSummonBlockRitual("X###;#ooo;#ooo;#ooo", Blocks.TALLGRASS.getDefaultState().withProperty(BlockTallGrass.TYPE, BlockTallGrass.EnumType.GRASS)));
-        ritualCreateWaterHole = register(new BasicSummonBlockRitual("###;X. ;###", Blocks.WATER));
+        ritualCreateDirt = register(new SummonBlockRitual("#o;X#", Blocks.DIRT));
+        ritualCreateSapling = register(new SummonBlockRitual("o#X;###", Blocks.SAPLING));
+        ritualCreateGrass = register(new SummonBlockRitual("X###;#ooo;#ooo;#ooo", Blocks.TALLGRASS.getDefaultState().withProperty(BlockTallGrass.TYPE, BlockTallGrass.EnumType.GRASS)));
+        ritualCreateWaterHole = register(new SummonBlockRitual("###;X. ;###", Blocks.WATER));
 
         ritualBasicGrowth = register(new GrowthRitual("#o#;###; X "));
     }
 
-    private static Ritual register(Ritual ritual) {
+    private static <R extends Ritual> R register(R ritual) {
         allRituals.add(ritual);
         return ritual;
-
     }
 
     public static ValidRitual matchRitual(ArrayList<BlockPos> positions, World world) {

@@ -10,15 +10,15 @@ import net.minecraft.world.World;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 
-public class BasicSummonBlockRitual extends Ritual {
-    protected IBlockState blockToSummon;
+public class SummonBlockRitual extends Ritual {
+    public final IBlockState blockToSummon;
 
-    public BasicSummonBlockRitual(String grid, Block blockToSummon) {
+    public SummonBlockRitual(String grid, Block blockToSummon) {
         super(grid);
         this.blockToSummon = blockToSummon.getDefaultState();
     }
 
-    public BasicSummonBlockRitual(String grid, IBlockState blockToSummon) {
+    public SummonBlockRitual(String grid, IBlockState blockToSummon) {
         super(grid);
         this.blockToSummon = blockToSummon;
     }

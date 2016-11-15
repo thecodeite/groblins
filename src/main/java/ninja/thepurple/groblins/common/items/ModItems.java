@@ -13,6 +13,7 @@ public final class ModItems {
     public static void createItems() {
         groblinDust = registerItem(new BasicItem("groblinDust"));
         groblinHand = registerItem(new ItemGroblinHand());
+
     }
 
     private static <I extends Item> I registerItem(I item) {

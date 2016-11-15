@@ -1,6 +1,8 @@
 package ninja.thepurple.groblins.common.blocks;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockGrass;
+import net.minecraft.block.BlockRedstoneWire;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
@@ -198,32 +200,6 @@ public class BlockGroblinPlasma extends BasicBlock {
             } else {
                 validateRitual(worldIn, foundPositions);
             }
-
-//            this.updateSurroundingRedstone(worldIn, pos, state);
-//
-//            for (EnumFacing enumfacing : EnumFacing.Plane.VERTICAL)
-//            {
-//                worldIn.notifyNeighborsOfStateChange(pos.offset(enumfacing), this);
-//            }
-//
-//            for (EnumFacing enumfacing1 : EnumFacing.Plane.HORIZONTAL)
-//            {
-//                this.notifyWireNeighborsOfStateChange(worldIn, pos.offset(enumfacing1));
-//            }
-//
-//            for (EnumFacing enumfacing2 : EnumFacing.Plane.HORIZONTAL)
-//            {
-//                BlockPos blockpos = pos.offset(enumfacing2);
-//
-//                if (worldIn.getBlockState(blockpos).isNormalCube())
-//                {
-//                    this.notifyWireNeighborsOfStateChange(worldIn, blockpos.up());
-//                }
-//                else
-//                {
-//                    this.notifyWireNeighborsOfStateChange(worldIn, blockpos.down());
-//                }
-//            }
         }
     }
 
@@ -297,25 +273,6 @@ public class BlockGroblinPlasma extends BasicBlock {
             for (EnumFacing enumfacing : EnumFacing.values()) {
                 worldIn.notifyNeighborsOfStateChange(pos.offset(enumfacing), this);
             }
-
-//            for (EnumFacing enumfacing1 : EnumFacing.Plane.HORIZONTAL)
-//            {
-//                this.notifyWireNeighborsOfStateChange(worldIn, pos.offset(enumfacing1));
-//            }
-
-//            for (EnumFacing enumfacing2 : EnumFacing.Plane.HORIZONTAL)
-//            {
-//                BlockPos blockpos = pos.offset(enumfacing2);
-//
-//                if (worldIn.getBlockState(blockpos).isNormalCube())
-//                {
-//                    this.notifyWireNeighborsOfStateChange(worldIn, blockpos.up());
-//                }
-//                else
-//                {
-//                    this.notifyWireNeighborsOfStateChange(worldIn, blockpos.down());
-//                }
-//            }
         }
     }
 
@@ -363,6 +320,7 @@ public class BlockGroblinPlasma extends BasicBlock {
         Block block = blockState.getBlock();
 
         return (block == ModBlocks.groblinPlasma);
+
     }
 
     @SideOnly(Side.CLIENT)
@@ -388,7 +346,7 @@ public class BlockGroblinPlasma extends BasicBlock {
         int i = MathHelper.clamp_int((int) (f1 * 255.0F), 0, 255);
         int j = MathHelper.clamp_int((int) (f2 * 255.0F), 0, 255);
         int k = MathHelper.clamp_int((int) (f3 * 255.0F), 0, 255);
-        return -16777216 | i << 16 | j << 8 | k;
+        return -16777216 | i << 16 | j << 8 | 255;
     }
 
     @SideOnly(Side.CLIENT)
