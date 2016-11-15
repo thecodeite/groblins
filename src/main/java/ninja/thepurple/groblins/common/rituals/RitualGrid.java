@@ -1,16 +1,74 @@
 package ninja.thepurple.groblins.common.rituals;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public final class RitualGrid {
-    public String full;
-    public String matching;
+    public final String full;
+    public final String matching;
+    public final Offset keyOffset;
+    public final Offset[] eventOffsets;
 
     public RitualGrid (String full) {
         this.full = full;
         this.matching = toMatching(full);
+        this.keyOffset = calculateKeyOffset(full);
+        this.eventOffsets = calculateEventOffsets(full);
+    }
+
+    public class Offset {
+        final int x, y, z;
+
+        Offset(int x, int y, int z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
+        @Override
+        public String toString() {
+            return "Offset x="+x+"; y="+y+" z="+z;
+        }
+    }
+
+    private Offset calculateKeyOffset(String fullGrid) {
+        char[][] arr = gridToArray(fullGrid);
+
+        for(int z=0; z<arr.length; z++) {
+            for(int x = 0; x<arr[z].length; x++) {
+                if (arr[z][x] == 'X') {
+                    return new Offset(x, 0, z);
+                }
+            }
+        }
+
+        return new Offset(0, 0, 0);
+    }
+
+    private Offset[] calculateEventOffsets(String fullGrid) {
+        char[][] arr = gridToArray(fullGrid);
+        ArrayList<Offset> results = new ArrayList<>();
+
+        for(int z=0; z<arr.length; z++) {
+            for(int x = 0; x<arr[z].length; x++) {
+                if (arr[z][x] == 'o') {
+                    results.add(new Offset(x, 0, z));
+                } else if (arr[z][x] == '.') {
+                    results.add(new Offset(x, -1, z));
+                }
+            }
+        }
+
+        Offset[] result = results.toArray(new Offset[results.size()]);
+
+        return result;
     }
 
     private static String toMatching(String grid) {
-        return grid.replace('o', ' ').replace('X', '#');
+        return grid
+                .replace('.', ' ')
+                .replace('o', ' ')
+                .replace('X', '#');
     }
 
     public static RitualGrid[] rotations(String grid) {

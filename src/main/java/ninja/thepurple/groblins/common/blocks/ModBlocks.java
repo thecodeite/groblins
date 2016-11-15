@@ -16,6 +16,7 @@ public class ModBlocks {
 
     public static void createBlocks() {
         groblinDustBlock = registerBlock(new BasicBlock("groblinDustBlock").setLightLevel(1.0f));
+        registerBlock(new BasicModelBlock("floatingBall").setLightLevel(1.0f));
         groblinHouse = registerBlock(new BlockGroblinHouse());
         groblinPlasma = registerBlock(new BlockGroblinPlasma());
     }

@@ -7,6 +7,7 @@ import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -33,7 +34,25 @@ public class BlockGroblinPlasma extends BasicBlock {
     public static final PropertyBool IS_RITUAL = PropertyBool.create("is_ritual");
     public static final PropertyBool IS_KEY = PropertyBool.create("is_key");
 
-    protected static final AxisAlignedBB[] GROBLIN_PLASMA_AABB = new AxisAlignedBB[]{new AxisAlignedBB(0.1875D, 0.0D, 0.1875D, 0.8125D, 0.0625D, 0.8125D), new AxisAlignedBB(0.1875D, 0.0D, 0.1875D, 0.8125D, 0.0625D, 1.0D), new AxisAlignedBB(0.0D, 0.0D, 0.1875D, 0.8125D, 0.0625D, 0.8125D), new AxisAlignedBB(0.0D, 0.0D, 0.1875D, 0.8125D, 0.0625D, 1.0D), new AxisAlignedBB(0.1875D, 0.0D, 0.0D, 0.8125D, 0.0625D, 0.8125D), new AxisAlignedBB(0.1875D, 0.0D, 0.0D, 0.8125D, 0.0625D, 1.0D), new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.8125D, 0.0625D, 0.8125D), new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.8125D, 0.0625D, 1.0D), new AxisAlignedBB(0.1875D, 0.0D, 0.1875D, 1.0D, 0.0625D, 0.8125D), new AxisAlignedBB(0.1875D, 0.0D, 0.1875D, 1.0D, 0.0625D, 1.0D), new AxisAlignedBB(0.0D, 0.0D, 0.1875D, 1.0D, 0.0625D, 0.8125D), new AxisAlignedBB(0.0D, 0.0D, 0.1875D, 1.0D, 0.0625D, 1.0D), new AxisAlignedBB(0.1875D, 0.0D, 0.0D, 1.0D, 0.0625D, 0.8125D), new AxisAlignedBB(0.1875D, 0.0D, 0.0D, 1.0D, 0.0625D, 1.0D), new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.0625D, 0.8125D), new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.0625D, 1.0D)};
+    protected static final AxisAlignedBB[] GROBLIN_PLASMA_AABB = new AxisAlignedBB[]{
+            new AxisAlignedBB(0.1875D, 0.0D, 0.1875D, 0.8125D, 0.0625D, 0.8125D),
+            new AxisAlignedBB(0.1875D, 0.0D, 0.1875D, 0.8125D, 0.0625D, 1.0D),
+            new AxisAlignedBB(0.0D, 0.0D, 0.1875D, 0.8125D, 0.0625D, 0.8125D),
+            new AxisAlignedBB(0.0D, 0.0D, 0.1875D, 0.8125D, 0.0625D, 1.0D),
+            new AxisAlignedBB(0.1875D, 0.0D, 0.0D, 0.8125D, 0.0625D, 0.8125D),
+            new AxisAlignedBB(0.1875D, 0.0D, 0.0D, 0.8125D, 0.0625D, 1.0D),
+            new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.8125D, 0.0625D, 0.8125D),
+            new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.8125D, 0.0625D, 1.0D),
+            new AxisAlignedBB(0.1875D, 0.0D, 0.1875D, 1.0D, 0.0625D, 0.8125D),
+            new AxisAlignedBB(0.1875D, 0.0D, 0.1875D, 1.0D, 0.0625D, 1.0D),
+            new AxisAlignedBB(0.0D, 0.0D, 0.1875D, 1.0D, 0.0625D, 0.8125D),
+            new AxisAlignedBB(0.0D, 0.0D, 0.1875D, 1.0D, 0.0625D, 1.0D),
+            new AxisAlignedBB(0.1875D, 0.0D, 0.0D, 1.0D, 0.0625D, 0.8125D),
+            new AxisAlignedBB(0.1875D, 0.0D, 0.0D, 1.0D, 0.0625D, 1.0D),
+            new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.0625D, 0.8125D),
+            new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.0625D, 1.0D),
+            new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.5625D, 1.0D)
+    };
 
 
     public BlockGroblinPlasma() {
@@ -49,11 +68,23 @@ public class BlockGroblinPlasma extends BasicBlock {
         );
     }
 
+    @Override
+    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+        if (state.getValue(IS_RITUAL) && state.getValue(IS_KEY)) {
+            return activateRitual(playerIn, worldIn, pos);
+        }
+        return false;
+    }
+
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
         return GROBLIN_PLASMA_AABB[getAABBIndex(state.getActualState(source, pos))];
     }
 
     private static int getAABBIndex(IBlockState state) {
+        if(state.getValue(IS_KEY)) {
+            return 16;
+        }
+
         int i = 0;
         boolean isNorth = state.getValue(NORTH) != BlockGroblinPlasma.EnumAttachPosition.NONE;
         boolean isEast = state.getValue(EAST) != BlockGroblinPlasma.EnumAttachPosition.NONE;
@@ -165,13 +196,7 @@ public class BlockGroblinPlasma extends BasicBlock {
                     worldIn.destroyBlock(p, true);
                 }
             } else {
-                ValidRitual ritual = ModRituals.matchRitual(foundPositions);
-
-                boolean isRitual = ritual != null;
-
-                for (BlockPos p : foundPositions) {
-                    worldIn.setBlockState(p, this.blockState.getBaseState().withProperty(IS_RITUAL, isRitual));
-                }
+                validateRitual(worldIn, foundPositions);
             }
 
 //            this.updateSurroundingRedstone(worldIn, pos, state);
@@ -263,12 +288,7 @@ public class BlockGroblinPlasma extends BasicBlock {
                         foundPositions.add(adjPos);
                         this.findConnectedPlasma(worldIn, adjPos, foundPositions, 0);
 
-                        ValidRitual ritual = ModRituals.matchRitual(foundPositions);
-                        boolean isRitual = (ritual != null);
-
-                        for (BlockPos p : foundPositions) {
-                            worldIn.setBlockState(p, this.blockState.getBaseState().withProperty(IS_RITUAL, isRitual));
-                        }
+                        validateRitual(worldIn, foundPositions);
 
                     }
                 }
@@ -297,6 +317,36 @@ public class BlockGroblinPlasma extends BasicBlock {
 //                }
 //            }
         }
+    }
+
+    private void validateRitual(World worldIn, ArrayList<BlockPos> foundPositions) {
+        ValidRitual validRitual = ModRituals.matchRitual(foundPositions, worldIn);
+        boolean isRitual = (validRitual != null);
+
+        for (BlockPos p : foundPositions) {
+            boolean isKey = (validRitual != null && p == validRitual.getKeyPosition());
+            worldIn.setBlockState(p, this.blockState.getBaseState().withProperty(IS_RITUAL, isRitual).withProperty(IS_KEY, isKey));
+        }
+    }
+
+    private boolean activateRitual(@Nullable EntityPlayer playerIn, World worldIn, BlockPos keyPosition) {
+        ArrayList<BlockPos> foundPositions = new ArrayList<BlockPos>();
+        foundPositions.add(keyPosition);
+        this.findConnectedPlasma(worldIn, keyPosition, foundPositions, 0);
+
+        ValidRitual validRitual = ModRituals.matchRitual(foundPositions, worldIn);
+        if (validRitual != null) {
+            boolean ritualSuccess = validRitual.getRitual().activateRitual(validRitual, playerIn, worldIn);
+
+            if (ritualSuccess) {
+                for (BlockPos p : foundPositions) {
+                    worldIn.destroyBlock(p, true);
+                }
+            }
+
+            return ritualSuccess;
+        }
+        return false;
     }
 
 
@@ -369,16 +419,6 @@ public class BlockGroblinPlasma extends BasicBlock {
         return new ItemStack(Items.REDSTONE);
     }
 
-
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
-    public IBlockState getStateFromMeta(int meta)
-    {
-        return this.getDefaultState()
-                .withProperty(IS_RITUAL, (meta & 1) > 0);
-    }
-
     @SideOnly(Side.CLIENT)
     public BlockRenderLayer getBlockLayer()
     {
@@ -386,11 +426,24 @@ public class BlockGroblinPlasma extends BasicBlock {
     }
 
     /**
+     * Convert the given metadata into a BlockState for this Block
+     */
+    public IBlockState getStateFromMeta(int meta)
+    {
+        return this.getDefaultState()
+                .withProperty(IS_RITUAL, (meta & 1) > 0)
+                .withProperty(IS_KEY, (meta & 2) > 0);
+    }
+
+    /**
      * Convert the BlockState into the correct metadata value
      */
     public int getMetaFromState(IBlockState state)
     {
-        return state.getValue(IS_RITUAL) ? 1 : 0;
+        int meta = 0;
+        meta += (state.getValue(IS_RITUAL) ? 1 : 0);
+        meta += (state.getValue(IS_KEY) ? 2 : 0);
+        return meta;
     }
 
     /**
