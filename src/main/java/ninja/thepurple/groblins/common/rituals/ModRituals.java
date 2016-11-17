@@ -18,6 +18,7 @@ public final class ModRituals {
 
     public static void createRituals() {
         ritualCreateDirt = register(new SummonBlockRitual("#o;X#", Blocks.DIRT));
+        //ritualCreateDirt = register(new SummonBlockRitual("####;####;#o##;###X", Blocks.DIRT));
         ritualCreateSapling = register(new SummonBlockRitual("o#X;###", Blocks.SAPLING));
         ritualCreateGrass = register(new SummonBlockRitual("X###;#ooo;#ooo;#ooo", Blocks.TALLGRASS.getDefaultState().withProperty(BlockTallGrass.TYPE, BlockTallGrass.EnumType.GRASS)));
         ritualCreateWaterHole = register(new SummonBlockRitual("###;X. ;###", Blocks.WATER));

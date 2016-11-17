@@ -4,44 +4,39 @@ import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 import ninja.thepurple.groblins.common.entity.groblin.EntityGroblin;
+import ninja.thepurple.groblins.common.entity.groblin.activities.ActivityWalkTo;
 
 public class EntityAIGoHome extends EntityAIBase {
     private EntityGroblin groblin;
-    private int workFor;
+    private ActivityWalkTo activityWalkTo;
+
     public EntityAIGoHome(EntityGroblin groblin) {
         this.groblin = groblin;
+        this.setMutexBits(8);
     }
 
     @Override
     public boolean shouldExecute() {
-        if (workFor > 0) {
-            workFor--;
-            return true;
-        }
+        if(!groblin.getNavigator().noPath()) return false;
         Chunk currentChunk = groblin.worldObj.getChunkFromBlockCoords(groblin.getPosition());
-        return currentChunk != groblin.homeChunk;
+        return currentChunk != groblin.getHomeChunk();
     }
 
     public void startExecuting() {
         groblin.say("I'm a long way from home");
+
+        int y = groblin.getHomeChunk().getHeightValue(0, 0);
+        BlockPos homePos = new BlockPos(groblin.getHomeX()+8, y, groblin.getHomeZ()+8);
+        activityWalkTo = new ActivityWalkTo(groblin, homePos);
     }
 
     @Override
     public boolean continueExecuting() {
-        if (workFor > 0) {
-            workFor--;
-            return false;
-        }
-
-        Chunk currentChunk = groblin.worldObj.getChunkFromBlockCoords(groblin.getPosition());
-        if(currentChunk != groblin.homeChunk) {
-            int y = groblin.homeChunk.getHeightValue(0, 0);
-            BlockPos homePos = new BlockPos(groblin.homeChunk.xPosition, y, groblin.homeChunk.zPosition);
-            this.groblin.moveToBlockPosAndAngles(homePos, 0 ,0);
-            workFor = 20;
-            return false;
-        } else {
-            return true;
+        switch (activityWalkTo.update()){
+            case DOING: return true;
+            case DONE:
+            case CANT_DO:
+            default: return false;
         }
     }
 }

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 
 public abstract class Ritual {
     protected RitualGrid[] grids;
+    public final int size;
 
     public Ritual (String grid) {
         /*
@@ -26,6 +27,11 @@ public abstract class Ritual {
         */
 
         grids = RitualGrid.rotations(grid);
+
+        String[] bits = grid.split(";");
+        int width = bits[0].length();
+        int height = bits.length;
+        size = width > height ? width : height;
     }
 
     public abstract boolean eventSiteMustBeEmpty();
@@ -123,6 +129,10 @@ public abstract class Ritual {
         }
 
         return new String(arrayGrid);
+    }
+
+    public RitualGrid[] getGrids() {
+        return grids;
     }
 }
 

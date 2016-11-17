@@ -93,7 +93,7 @@ public class ExpandingChunkSearch implements Iterable<BlockPos> {
 
             blocksCounted++;
             int y = getHeightValue(currentPos.x, currentPos.z);
-            BlockPos res = currentPos.toBlockPos(start, 0);
+            BlockPos res = currentPos.toBlockPos(start, y);
             System.out.println("res" + res);
             return res;
         }

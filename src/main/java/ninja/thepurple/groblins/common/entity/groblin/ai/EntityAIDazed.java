@@ -6,7 +6,8 @@ import ninja.thepurple.groblins.common.entity.groblin.EntityGroblin;
 public class EntityAIDazed extends EntityAIBase {
     private EntityGroblin groblin;
     public EntityAIDazed(EntityGroblin groblin) {
-    this.groblin = groblin;
+        this.groblin = groblin;
+        this.setMutexBits(31);
     }
 
     @Override
