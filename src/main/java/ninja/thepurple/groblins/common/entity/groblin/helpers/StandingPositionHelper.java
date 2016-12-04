@@ -63,9 +63,10 @@ public class StandingPositionHelper {
 
         boolean isAir = world.isAirBlock(pos);
         boolean isAirUp = world.isAirBlock(pos.up());
+        boolean isAirUpUp = world.isAirBlock(pos.up().up());
         boolean solidBase = world.isSideSolid(pos.down(), EnumFacing.UP);
 
-        System.out.println(pos + " isAir=" + isAir + " isAirUp=" + isAirUp + " solidBase=" + solidBase);
-        return isAir && isAirUp && solidBase;
+        System.out.println(pos + " isAir=" + isAir + " isAirUp=" + isAirUp + " isAirUpUp=" + isAirUpUp + " solidBase=" + solidBase);
+        return isAir && isAirUp && isAirUpUp && solidBase;
     }
 }

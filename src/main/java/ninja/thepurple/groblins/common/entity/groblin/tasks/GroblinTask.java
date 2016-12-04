@@ -9,5 +9,7 @@ public abstract class GroblinTask {
         this.groblin = groblin;
     }
 
-    public abstract boolean workOnTask();
+    public abstract void prepareTask();
+    public abstract void workOnTask();
+    public abstract boolean taskIsComplete();
 }

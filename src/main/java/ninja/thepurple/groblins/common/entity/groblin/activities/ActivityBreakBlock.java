@@ -11,6 +11,7 @@ import ninja.thepurple.groblins.common.entity.groblin.helpers.WorldInteractionHe
 
 public class ActivityBreakBlock extends ActivityInteractWithWorld {
 
+    private int breakingTime = 0;
     public ActivityBreakBlock(EntityGroblin groblin, BlockPos breakBlockPos) {
         super(groblin, breakBlockPos);
     }
@@ -22,9 +23,10 @@ public class ActivityBreakBlock extends ActivityInteractWithWorld {
 
     @Override
     protected ActivityResult interactWithWorld(BlockPos interactionPos) {
-        System.out.println("I'm here, breaking at "+ interactionPos);
-        boolean success = WorldInteractionHelper.tryBreakBlock(interactionPos, groblin.worldObj);
-        return success ? ActivityResult.DONE : ActivityResult.CANT_DO;
+        ++this.breakingTime;
+        System.out.println("I'm here, breaking at "+ interactionPos + " breakingTime: "+ breakingTime);
+
+        return WorldInteractionHelper.tryBreakBlock(this.groblin, interactionPos, groblin.worldObj, breakingTime);
     }
 }
 

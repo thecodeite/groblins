@@ -50,22 +50,30 @@ public class GroblinTaskGetResourceFromRitual extends GroblinTask {
     }
 
     @Override
-    public boolean workOnTask() {
+    public void prepareTask() {
+
+    }
+
+    @Override
+    public void workOnTask() {
         if (rest > 0) {
             rest--;
             System.err.println("Resting for " + rest);
-            return false;
+            return;
         }
 
         switch (this.state) {
-            case FINDING_SPACE: findSpace(groblin); return false;
-            case MOVING_TO_SPACE: movingToSpace(groblin); return false;
-            case DRAWING_RITUAL: drawingRitual(groblin); return false;
-            case ACTIVATE_RITUAL: activateRitual(groblin); return false;
-            case HARVEST_PRODUCT: harvestProduct(groblin); return false;
-            default:
-            case FINISHED: return true;
+            case FINDING_SPACE: findSpace(groblin); break;
+            case MOVING_TO_SPACE: movingToSpace(groblin); break;
+            case DRAWING_RITUAL: drawingRitual(groblin); break;
+            case ACTIVATE_RITUAL: activateRitual(groblin); break;
+            case HARVEST_PRODUCT: harvestProduct(groblin); break;
         }
+    }
+
+    @Override
+    public boolean taskIsComplete() {
+        return this.state == TaskState.FINISHED;
     }
 
     private void findSpace(EntityGroblin groblin) {
@@ -159,7 +167,7 @@ public class GroblinTaskGetResourceFromRitual extends GroblinTask {
                     System.out.println("Ritual site must have changed. Start looking again.");
                     this.state = TaskState.FINDING_SPACE;
                 } else {
-                    System.out.println("Ritule was a success, moving to harvest");
+                    System.out.println("Ritual was a success, moving to harvest");
                     this.state = TaskState.HARVEST_PRODUCT;
                 }
             }
@@ -203,7 +211,7 @@ public class GroblinTaskGetResourceFromRitual extends GroblinTask {
             } else if (isSolid) {
                 System.err.println("Block is solid" + material);
             } else if (isNotReplaceable) {
-                System.err.println("Block is no replacable" + blockState.getBlock());
+                System.err.println("Block is not replacable" + blockState.getBlock());
             }
             return false;
         }

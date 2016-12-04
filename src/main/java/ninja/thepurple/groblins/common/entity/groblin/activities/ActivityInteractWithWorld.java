@@ -37,12 +37,7 @@ public abstract class ActivityInteractWithWorld extends GroblinActivity {
 
     @Override
     protected ActivityResult isFinished() {
-        Path path = groblin.getNavigator().getPath();
-        if (path != null && path != pathToStandingPosition ) {
-            return ActivityResult.CANT_DO;
-        }
-
-        if (path != null && !path.isFinished()) {
+        if (pathToStandingPosition != null && !pathToStandingPosition.isFinished()) {
             return ActivityResult.DOING;
         }
 
@@ -67,20 +62,25 @@ public abstract class ActivityInteractWithWorld extends GroblinActivity {
         double distanceSq = groblin.getDistanceSqToCenter(interactionPos);
         System.out.println("distanceSq = " + distanceSq);
 
-        if (distanceSq > 2.0D) {
+        if (distanceSq > 16.0D) {
             Vec3d spotToStand = StandingPositionHelper.pickSpotToAddBlockFrom(interactionPos, groblin.getPositionVector(), groblin.worldObj);
             if (spotToStand == null) {
+                System.out.println("Task failed as nowhere to stand");
                 return ActivityResult.CANT_DO;
             }
 
             System.out.println("I'll stand at "+ spotToStand);
 
-            if(distanceSq > 256) {
+            distanceSq = groblin.getDistanceSqToCenter(interactionPos);
+            if (distanceSq < 4D) {
+                return ActivityResult.DONE;
+            } else if (distanceSq > 256.0D) {
                 Vec3d vec3d = RandomPositionGenerator.findRandomTargetBlockTowards(this.groblin, 14, 3, spotToStand);
 
                 if (vec3d != null) {
                     pathToStandingPosition = this.groblin.getNavigator().getPathToXYZ(vec3d.xCoord, vec3d.yCoord, vec3d.zCoord);
                 } else {
+                    System.out.println("Task failed as no random block towards found");
                     return ActivityResult.CANT_DO;
                 }
             } else {

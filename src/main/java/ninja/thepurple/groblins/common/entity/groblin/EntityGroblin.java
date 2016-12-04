@@ -6,8 +6,10 @@ import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntitySpider;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryBasic;
+import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,6 +19,8 @@ import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.pathfinding.PathNavigateClimber;
 import net.minecraft.pathfinding.PathNavigateGround;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -33,6 +37,7 @@ import ninja.thepurple.groblins.common.entity.groblin.helpers.GroblinNameGenerat
 import ninja.thepurple.groblins.common.entity.groblin.helpers.PathNavigateGroblin;
 import ninja.thepurple.groblins.common.entity.groblin.helpers.StandingPositionHelper;
 import ninja.thepurple.groblins.common.entity.groblin.tasks.GroblinTask;
+import ninja.thepurple.groblins.common.entity.groblin.tasks.GroblinTaskFixTerrain;
 
 import javax.annotation.Nullable;
 import java.util.ArrayDeque;
@@ -51,17 +56,43 @@ public class EntityGroblin extends EntityCreature {
     public long wakeAt;
     private final InventoryBasic groblinInventory;
     public BlockPos chunkCorner;
+    private int[] terrainMap;
 
     public EntityGroblin(World worldIn) {
         super(worldIn);
         this.setHealth(1);
         this.wakeAt = worldIn.getWorldTime() + 100;
-        this.groblinInventory = new InventoryBasic("items", false, 8);
+        this.groblinInventory = new InventoryBasic("Groblin Inventory", false, 9);
         this.setCanPickUpLoot(true);
     }
 
     public Chunk getHomeChunk() {
         return worldObj.getChunkFromChunkCoords(homeChunkX, homeChunkZ);
+    }
+
+    @Override
+    protected boolean processInteract(EntityPlayer player, EnumHand hand, @Nullable ItemStack stack) {
+
+        if (this.isEntityAlive())
+        {
+            if (!this.worldObj.isRemote)
+            {
+                player.openGui(
+                        GroblinsMod.instance,
+                        GroblinsMod.GUI_ENUM.GROBLIN.ordinal(),
+                        player.worldObj,
+                        this.getEntityId(), 0, 0);
+
+            }
+
+            return true;
+        }
+        else
+        {
+            return super.processInteract(player, hand, stack);
+        }
+
+
     }
 
     @Nullable
@@ -78,7 +109,7 @@ public class EntityGroblin extends EntityCreature {
         this.tasks.addTask(2, new EntityAICollectItems(this));
         this.tasks.addTask(5, new EntityAIPerformObjectiveTask(this));
         this.tasks.addTask(10, new EntityAIAssessTerrain(this));
-        this.tasks.addTask(20, new EntityAIFlattenTerrain(this));
+        // this.tasks.addTask(20, new EntityAIFlattenTerrain(this));
     }
 
     @Override
@@ -114,14 +145,15 @@ public class EntityGroblin extends EntityCreature {
     protected void dropLoot(boolean wasRecentlyHit, int lootingModifier, DamageSource source) {
         super.dropLoot(wasRecentlyHit, lootingModifier, source);
 
-        InventoryBasic inventory = getGroblinInventory();
-        for (int i = 0; i < inventory.getSizeInventory(); i++) {
-            ItemStack itemstack = inventory.removeStackFromSlot(i);
-            if (itemstack != null) {
-                this.entityDropItem(itemstack, 0.0F);
-            }
-
-        }
+        InventoryHelper.dropInventoryItems(worldObj, this, groblinInventory);
+//        InventoryBasic inventory = getGroblinInventory();
+//        for (int i = 0; i < inventory.getSizeInventory(); i++) {
+//            ItemStack itemstack = inventory.removeStackFromSlot(i);
+//            if (itemstack != null) {
+//                this.entityDropItem(itemstack, 0.0F);
+//            }
+//
+//        }
     }
 
     public void addObjectiveTask(GroblinTask task) {
@@ -177,7 +209,7 @@ public class EntityGroblin extends EntityCreature {
             compound.setInteger("YLevel", yLevel);
         }
 
-        NBTTagList nbttaglist = new NBTTagList();
+        NBTTagList inventoryTagList = new NBTTagList();
 
         for (int i = 0; i < this.groblinInventory.getSizeInventory(); ++i)
         {
@@ -185,11 +217,11 @@ public class EntityGroblin extends EntityCreature {
 
             if (itemstack != null)
             {
-                nbttaglist.appendTag(itemstack.writeToNBT(new NBTTagCompound()));
+                inventoryTagList.appendTag(itemstack.writeToNBT(new NBTTagCompound()));
             }
         }
 
-        compound.setTag("Inventory", nbttaglist);
+        compound.setTag("Inventory", inventoryTagList);
     }
 
     /**
@@ -243,6 +275,24 @@ public class EntityGroblin extends EntityCreature {
 
     public int getHomeZ() {
         return homeChunkZ * 16;
+    }
+
+    public <T extends GroblinTask> T getTaskType() {
+        for(GroblinTask task : this.objectiveTasks) {
+            if (task instanceof GroblinTaskFixTerrain) {
+                return (T) task;
+            }
+        }
+
+        return null;
+    }
+
+    public int[] getTerrainMap() {
+        return terrainMap;
+    }
+
+    public void setTerrainMap(int[] terrainMap) {
+        this.terrainMap = terrainMap;
     }
 }
 

@@ -3,9 +3,11 @@ package ninja.thepurple.groblins.common.entity.groblin.helpers;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import ninja.thepurple.groblins.common.entity.groblin.activities.GroblinActivity;
 
 public class WorldInteractionHelper {
     public static boolean tryPlaceBlock(BlockPos pos, IBlockState blockToPlace, World world, EnumFacing needSolidFace) {
@@ -44,13 +46,25 @@ public class WorldInteractionHelper {
         return tryPlaceBlock(pos, blockToPlace, world, null);
     }
 
-    public static boolean tryBreakBlock(BlockPos pos, World world) {
+    public static GroblinActivity.ActivityResult tryBreakBlock(Entity e, BlockPos pos, World world, int breakingTime) {
         IBlockState blockState = world.getBlockState(pos);
-        //blockState.getBlockHardness(world, pos);
-        //blockState.getPlayerRelativeBlockHardness()
-        //world.sendBlockBreakProgress(-1, pos, 50);
-        world.destroyBlock(pos, true);
 
-        return true;
+        float hardness = blockState.getBlockHardness(world, pos);
+        // hardness = 0.5
+
+        //bt = 0; p=0
+        //bt = 20; p=5
+        //bt = 40
+
+        int progress = (int)((float)breakingTime / 240.0F * 10.0F);
+
+
+        world.sendBlockBreakProgress(e.getEntityId(), pos, progress);
+        if(progress >= 10) {
+            world.destroyBlock(pos, true);
+            return GroblinActivity.ActivityResult.DONE;
+        }
+
+        return GroblinActivity.ActivityResult.DOING;
     }
 }

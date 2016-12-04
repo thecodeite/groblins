@@ -4,6 +4,7 @@ import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 import ninja.thepurple.groblins.common.entity.groblin.EntityGroblin;
+import ninja.thepurple.groblins.common.entity.groblin.tasks.GroblinTaskFixTerrain;
 import ninja.thepurple.groblins.common.entity.groblin.tasks.GroblinTaskGetResourceFromRitual;
 import ninja.thepurple.groblins.common.rituals.ModRituals;
 
@@ -16,37 +17,54 @@ public class EntityAIAssessTerrain extends EntityAIBase {
 
     @Override
     public boolean shouldExecute() {
-        return groblin.hasHomeChunk || groblin.yLevel <= 0;
+
+
+        if(!groblin.hasHomeChunk || groblin.yLevel <= 0 || groblin.getTerrainMap() == null) {
+            return true;
+        }
+        return false;
     }
 
     public void startExecuting() {
         BlockPos blockpos = this.groblin.getPosition();
+        Chunk chunk;
 
         if (!groblin.hasHomeChunk) {
             groblin.hasHomeChunk = true;
-            Chunk chunk = this.groblin.worldObj.getChunkFromBlockCoords(blockpos);
+            chunk = this.groblin.worldObj.getChunkFromBlockCoords(blockpos);
             groblin.homeChunkX = chunk.xPosition;
             groblin.homeChunkZ = chunk.zPosition;
 
             groblin.say("I am a groblin " + this.groblin.name + " and I'm making my home in the chunk at " +
-                    this.groblin.homeChunkX + ", "+this.groblin.homeChunkZ);
-            
-            int[] hightMap = chunk.getHeightMap();
+                    this.groblin.homeChunkX + ", " + this.groblin.homeChunkZ);
+        }
+
+        if (groblin.yLevel < 0) {
+            chunk = this.groblin.getHomeChunk();
+            int[] heightMap = chunk.getHeightMap();
 
             int sum = 0;
-            for (int y : hightMap) {
+            for (int y : heightMap) {
                 sum += y;
             }
 
             groblin.yLevel = sum >> 8;
             System.out.println("sum = " + sum);
-            System.out.println("sum/ = " + sum/256D);
+            System.out.println("sum/ = " + sum / 256D);
             System.out.println("sum %= " + sum % 256);
-            groblin.say("I like the look of y level "+groblin.yLevel);
-            int blocksNededToBuildUp = 256 - (sum % 256);
-            if (blocksNededToBuildUp < 16) {
+            groblin.say("I like the look of y level " + groblin.yLevel);
+            int blocksNeededToBuildUp = 256 - (sum % 256);
+            if (blocksNeededToBuildUp < 16) {
                 groblin.yLevel++;
-                groblin.say("But actually, I only need to find "+blocksNededToBuildUp+" blocks to live on "+groblin.yLevel);
+                groblin.say("But actually, I only need to find " + blocksNeededToBuildUp + " blocks to live on " + groblin.yLevel);
+            }
+        }
+
+        if (groblin.getTerrainMap() == null && groblin.<GroblinTaskFixTerrain>getTaskType() == null) {
+            for (int y : groblin.getHomeChunk().getHeightMap()) {
+                if (y != this.groblin.yLevel) {
+                    groblin.objectiveTasks.add(new GroblinTaskFixTerrain(groblin));
+                }
             }
         }
     }

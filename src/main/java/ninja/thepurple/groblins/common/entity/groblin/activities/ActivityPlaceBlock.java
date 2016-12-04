@@ -23,6 +23,11 @@ public class ActivityPlaceBlock extends ActivityInteractWithWorld {
     protected ActivityResult interactWithWorld(BlockPos interactionPos) {
         System.out.println("I'm here, inserting at"+ interactionPos);
         boolean success = WorldInteractionHelper.tryPlaceBlock(interactionPos, blockToPlace, groblin.worldObj);
-        return success ? ActivityResult.DONE : ActivityResult.CANT_DO;
+        if( success) {
+            return ActivityResult.DONE;
+        }else {
+            System.out.println("Task failed as couldn't place block ");
+            return ActivityResult.CANT_DO;
+        }
     }
 }

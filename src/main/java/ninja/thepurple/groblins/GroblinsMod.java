@@ -51,4 +51,9 @@ public class GroblinsMod
             event.setCanceled(true);
         //}
     }
+
+    public enum GUI_ENUM
+    {
+        GROBLIN
+    }
 }

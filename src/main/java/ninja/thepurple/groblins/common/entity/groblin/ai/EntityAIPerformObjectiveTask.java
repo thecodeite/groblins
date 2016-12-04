@@ -4,7 +4,7 @@ import net.minecraft.entity.ai.EntityAIBase;
 import ninja.thepurple.groblins.common.entity.groblin.EntityGroblin;
 import ninja.thepurple.groblins.common.entity.groblin.tasks.GroblinTask;
 
-public class EntityAIPerformObjectiveTask extends EntityAIBase {
+public class  EntityAIPerformObjectiveTask extends EntityAIBase {
     private EntityGroblin groblin;
     private GroblinTask activeTask;
 
@@ -18,12 +18,21 @@ public class EntityAIPerformObjectiveTask extends EntityAIBase {
     }
 
     public void startExecuting() {
-        if (activeTask == null) activeTask = groblin.objectiveTasks.poll();
+        if (activeTask == null) {
+            activeTask = groblin.objectiveTasks.poll();
+            activeTask.prepareTask();
+        }
     }
 
     @Override
     public boolean continueExecuting() {
-        boolean complete = activeTask.workOnTask();
-        return complete;
+        activeTask.workOnTask();
+        if(activeTask.taskIsComplete()) {
+            groblin.say("My task is complete:" + activeTask);
+            activeTask = null;
+            return false;
+        }
+
+        return true;
     }
 }
