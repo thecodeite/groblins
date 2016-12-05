@@ -2,9 +2,11 @@ package ninja.thepurple.groblins.common.entity.groblin.tasks;
 
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import ninja.thepurple.groblins.common.entity.groblin.EntityGroblin;
 import ninja.thepurple.groblins.common.entity.groblin.activities.GroblinActivity;
+import ninja.thepurple.groblins.common.entity.groblin.helpers.WorldInteractionHelper;
 
 import java.util.ArrayList;
 
@@ -86,7 +88,9 @@ public class GroblinTaskFixTerrain extends GroblinTask {
         }
 
         if (targetsToRemove.size() > 0) {
-            currentActivity = groblin.breakBlock(targetsToRemove.remove(0));
+            BlockPos blockToRemove = targetsToRemove.remove(0);
+            ItemStack tool = WorldInteractionHelper.pickTool(groblin.worldObj.getBlockState(blockToRemove), groblin.getGroblinInventory());
+            currentActivity = groblin.breakBlock(blockToRemove, tool);
         } else if (targetsToAdd.size() > 0) {
             currentActivity = groblin.placeBlock(targetsToAdd.remove(0), Blocks.DIRT.getDefaultState());
         } else {

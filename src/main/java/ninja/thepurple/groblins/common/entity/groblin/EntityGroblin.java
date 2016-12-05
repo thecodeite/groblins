@@ -258,8 +258,8 @@ public class EntityGroblin extends EntityCreature {
         return new ActivityPlaceBlock(this, insertPos, blockToPlace);
     }
 
-    public ActivityBreakBlock breakBlock (BlockPos pos) {
-        return new ActivityBreakBlock(this, pos);
+    public ActivityBreakBlock breakBlock (BlockPos pos, ItemStack tool) {
+        return new ActivityBreakBlock(this, pos, tool);
     }
 
     public AxisAlignedBB getHomeChunkAABB() {

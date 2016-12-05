@@ -2,6 +2,8 @@ package ninja.thepurple.groblins.common.entity.groblin.activities;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.ai.RandomPositionGenerator;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemTool;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -11,9 +13,11 @@ import ninja.thepurple.groblins.common.entity.groblin.helpers.WorldInteractionHe
 
 public class ActivityBreakBlock extends ActivityInteractWithWorld {
 
+    private final ItemStack tool;
     private int breakingTime = 0;
-    public ActivityBreakBlock(EntityGroblin groblin, BlockPos breakBlockPos) {
+    public ActivityBreakBlock(EntityGroblin groblin, BlockPos breakBlockPos, ItemStack tool) {
         super(groblin, breakBlockPos);
+        this.tool = tool;
     }
 
     @Override
@@ -26,7 +30,7 @@ public class ActivityBreakBlock extends ActivityInteractWithWorld {
         ++this.breakingTime;
         System.out.println("I'm here, breaking at "+ interactionPos + " breakingTime: "+ breakingTime);
 
-        return WorldInteractionHelper.tryBreakBlock(this.groblin, interactionPos, groblin.worldObj, breakingTime);
+        return WorldInteractionHelper.tryBreakBlock(this.groblin, interactionPos, groblin.worldObj, breakingTime, tool);
     }
 }
 
