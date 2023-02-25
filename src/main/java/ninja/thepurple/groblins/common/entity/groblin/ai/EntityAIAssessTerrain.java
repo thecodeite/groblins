@@ -4,28 +4,41 @@ import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 import ninja.thepurple.groblins.common.entity.groblin.EntityGroblin;
+import ninja.thepurple.groblins.common.entity.groblin.tasks.GroblinMakeWoodenToolsTask;
+import ninja.thepurple.groblins.common.entity.groblin.tasks.GroblinTask;
 import ninja.thepurple.groblins.common.entity.groblin.tasks.GroblinTaskFixTerrain;
 import ninja.thepurple.groblins.common.entity.groblin.tasks.GroblinTaskGetResourceFromRitual;
 import ninja.thepurple.groblins.common.rituals.ModRituals;
 
 public class EntityAIAssessTerrain extends EntityAIBase {
     private EntityGroblin groblin;
-
+    private GroblinTask activeTask;
     public EntityAIAssessTerrain(EntityGroblin groblin) {
         this.groblin = groblin;
     }
 
     @Override
     public boolean shouldExecute() {
+        if (activeTask != null) {
+            if (activeTask.taskIsComplete()) {
+                activeTask = null;
+            } else {
+                return false;
+            }
+        }
 
-
-        if(!groblin.hasHomeChunk || groblin.yLevel <= 0 || groblin.getTerrainMap() == null) {
+        if (!groblin.hasHomeChunk || groblin.yLevel <= 0 || groblin.getTerrainMap() == null) {
             return true;
         }
+
         return false;
     }
 
     public void startExecuting() {
+        if (activeTask != null) {
+            return;
+        }
+
         BlockPos blockpos = this.groblin.getPosition();
         Chunk chunk;
 
@@ -35,7 +48,7 @@ public class EntityAIAssessTerrain extends EntityAIBase {
             groblin.homeChunkX = chunk.xPosition;
             groblin.homeChunkZ = chunk.zPosition;
 
-            groblin.say("I am a groblin " + this.groblin.name + " and I'm making my home in the chunk at " +
+            groblin.say("I am a groblin " + this.groblin.getCustomNameTag() + " and I'm making my home in the chunk at " +
                     this.groblin.homeChunkX + ", " + this.groblin.homeChunkZ);
         }
 
@@ -60,10 +73,19 @@ public class EntityAIAssessTerrain extends EntityAIBase {
             }
         }
 
+        if (groblin.getBestToolLevel("all") < 1) {
+            groblin.say("I want to start mining but I need some tools first" );
+            activeTask = new GroblinMakeWoodenToolsTask(groblin);
+            groblin.objectiveTasks.add(activeTask);
+            return;
+        }
+
         if (groblin.getTerrainMap() == null && groblin.<GroblinTaskFixTerrain>getTaskType() == null) {
             for (int y : groblin.getHomeChunk().getHeightMap()) {
                 if (y != this.groblin.yLevel) {
-                    groblin.objectiveTasks.add(new GroblinTaskFixTerrain(groblin));
+                    activeTask = new GroblinTaskFixTerrain(groblin);
+                    groblin.objectiveTasks.add(activeTask);
+                    return;
                 }
             }
         }

@@ -5,6 +5,7 @@ import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemTool;
 import net.minecraft.pathfinding.Path;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import ninja.thepurple.groblins.common.entity.groblin.EntityGroblin;
@@ -28,9 +29,10 @@ public class ActivityBreakBlock extends ActivityInteractWithWorld {
     @Override
     protected ActivityResult interactWithWorld(BlockPos interactionPos) {
         ++this.breakingTime;
+        groblin.setHeldItem(EnumHand.MAIN_HAND, tool);
         System.out.println("I'm here, breaking at "+ interactionPos + " breakingTime: "+ breakingTime);
 
-        return WorldInteractionHelper.tryBreakBlock(this.groblin, interactionPos, groblin.worldObj, breakingTime, tool);
+        return WorldInteractionHelper.tryBreakBlock(this.groblin, interactionPos, groblin.worldObj, breakingTime);
     }
 }
 

@@ -13,3 +13,4 @@ public abstract class GroblinTask {
     public abstract void workOnTask();
     public abstract boolean taskIsComplete();
 }
+

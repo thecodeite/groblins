@@ -1,5 +1,6 @@
 package ninja.thepurple.groblins.common.entity.groblin;
 
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
@@ -11,7 +12,9 @@ import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemTool;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.pathfinding.Path;
@@ -46,7 +49,6 @@ import java.util.Queue;
 
 public class EntityGroblin extends EntityCreature {
     public static final ResourceLocation LOOT = new ResourceLocation(GroblinsMod.MODID, "entity/groblin");
-    public String name;
 
     //public Chunk homeChunk = null;
     public boolean hasHomeChunk = false;
@@ -54,7 +56,7 @@ public class EntityGroblin extends EntityCreature {
     public int yLevel = -1;
     public final Queue<GroblinTask> objectiveTasks = new ArrayDeque<>();
     public long wakeAt;
-    private final InventoryBasic groblinInventory;
+    private final GroblinInventory groblinInventory;
     public BlockPos chunkCorner;
     private int[] terrainMap;
 
@@ -62,13 +64,14 @@ public class EntityGroblin extends EntityCreature {
         super(worldIn);
         this.setHealth(1);
         this.wakeAt = worldIn.getWorldTime() + 100;
-        this.groblinInventory = new InventoryBasic("Groblin Inventory", false, 9);
+        this.groblinInventory = new GroblinInventory("Groblin Inventory", false, 9);
         this.setCanPickUpLoot(true);
     }
 
     public Chunk getHomeChunk() {
         return worldObj.getChunkFromChunkCoords(homeChunkX, homeChunkZ);
     }
+
 
     @Override
     protected boolean processInteract(EntityPlayer player, EnumHand hand, @Nullable ItemStack stack) {
@@ -98,8 +101,9 @@ public class EntityGroblin extends EntityCreature {
     @Nullable
     @Override
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata) {
-        this.name = GroblinNameGenerator.generateName();
-        this.say("I am a groblin " + name + " and I am alive!");
+
+        this.setCustomNameTag(GroblinNameGenerator.generateName());
+        this.say("I am a groblin " + getCustomNameTag() + " and I am alive!");
         return super.onInitialSpawn(difficulty, livingdata);
     }
 
@@ -158,7 +162,7 @@ public class EntityGroblin extends EntityCreature {
 
     public void addObjectiveTask(GroblinTask task) {
         objectiveTasks.add(task);
-        say("I am a groblin " + name + " and I now need to" + task.toString());
+        say("I am a groblin " + getCustomNameTag() + " and I now need to" + task.toString());
     }
 
     public void say(String text) {
@@ -201,7 +205,6 @@ public class EntityGroblin extends EntityCreature {
     {
         super.writeEntityToNBT(compound);
 
-        compound.setString("Name", name);
         compound.setBoolean("HasHomeChunk", hasHomeChunk);
         if (hasHomeChunk) {
             compound.setInteger("HomeChunkX", homeChunkX);
@@ -231,7 +234,6 @@ public class EntityGroblin extends EntityCreature {
     {
         super.readEntityFromNBT(compound);
 
-        name = compound.getString("Name");
         hasHomeChunk = compound.getBoolean("HasHomeChunk");
 
         if (hasHomeChunk) {
@@ -293,6 +295,11 @@ public class EntityGroblin extends EntityCreature {
 
     public void setTerrainMap(int[] terrainMap) {
         this.terrainMap = terrainMap;
+    }
+
+
+    public int getBestToolLevel(String toolClass) {
+        return this.groblinInventory.getBestToolLevel(toolClass);
     }
 }
 

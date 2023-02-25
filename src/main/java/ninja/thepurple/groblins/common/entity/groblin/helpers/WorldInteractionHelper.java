@@ -78,12 +78,14 @@ public class WorldInteractionHelper {
         return pickedStack;
     }
 
-    public static GroblinActivity.ActivityResult tryBreakBlock(EntityGroblin e, BlockPos pos, World world, int breakingTime, ItemStack tool) {
+    public static GroblinActivity.ActivityResult tryBreakBlock(EntityGroblin e, BlockPos pos, World world, int breakingTime) {
         IBlockState blockState = world.getBlockState(pos);
         Block block = blockState.getBlock();
         if (block.isAir(blockState, world, pos)) {
             return GroblinActivity.ActivityResult.DONE;
         }
+
+        ItemStack tool = e.getHeldItemMainhand();
 
         float str = tool == null ? 1.0f : tool.getItem().getStrVsBlock(tool, blockState);
         float hardness = blockState.getBlockHardness(world, pos);
